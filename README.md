@@ -2,4 +2,4 @@
 
 Bash script for updating Plex Media Server under FreeBSD
 
-Need few changes to adapt it for Linux
+Need few changes for linux compatibility (default path, service init, ...)
