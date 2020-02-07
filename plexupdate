@@ -4,10 +4,11 @@ HOME_DIR=$HOME
 cd $HOME_DIR
 
 
-LOCAL_VERSION=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
+#LOCAL_VERSION=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
+LOCAL_VERSION=""
 LATEST_VERSION=$(w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd | awk -F"\"" '/Release id/ {print $4}')
 ARCH="FreeBSD-amd64"
-PLEX_TMP="PlexMediaServer-${VERSION}"
+PLEX_TMP="PlexMediaServer-${LATEST_VERSION}"
 PLEX_DIR="plexmediaserver"
 PLEX_DIR_OLD="plexmediaserver_old"
 PLEX_PATH="/usr/local/share"
@@ -25,7 +26,7 @@ if [ $USER == "root" ];	then
 else
 
 
-status plexmediaserver >/dev/null 2>&1
+$_SUDO service plexmediaserver status >/dev/null 2>&1
 PROCESS=$?
 
 if [ "$LOCAL_VERSION" == "$LATEST_VERSION" ]
