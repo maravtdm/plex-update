@@ -3,36 +3,36 @@
 HOME_DIR=$HOME
 cd $HOME_DIR
 
-INSTALLED=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
-VERSION=$(w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd | awk -F"\"" '/Release id/ {print $4}')
+
+LOCAL_VERSION=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
+LATEST_VERSION=$(w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd | awk -F"\"" '/Release id/ {print $4}')
 ARCH="FreeBSD-amd64"
 PLEX_TMP="PlexMediaServer-${VERSION}"
 PLEX_DIR="plexmediaserver"
 PLEX_DIR_OLD="plexmediaserver_old"
 PLEX_PATH="/usr/local/share"
+_SUDO="doas"
+WGET=$(which wget)
+
+if test ! -f $WGET ; then
+  echo -e "You need to have wget installed before using this update script" 
+  exit 0
+  else
+if test ! -z $LATEST_VERSION ; then
 
 if [ $USER == "root" ];	then 
-	echo "Avoid running this script as root"
-	echo "Exiting ..."
+	echo -e "Avoid running this script as root\nExiting ..."
 else
+
 
 status plexmediaserver >/dev/null 2>&1
 PROCESS=$?
 
-if [ "$INSTALLED" == "$VERSION" ]
+if [ "$LOCAL_VERSION" == "$LATEST_VERSION" ]
 	then
-		echo "Running version : $INSTALLED"
-		echo "Latest release  : $VERSION"
-		echo " ________________________"
-		echo "|                        |"
-		echo "| No news is good news ! |"
-		echo "|________________________|"
-	#	echo "--------------------------"
-		echo ""
+		echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\n---\nYou already have the latest version"
 	else
-		echo "Running version : $INSTALLED"
-		echo "Latest release  : $VERSION"
-	echo "Update available, proceed ? (Y/n)"
+		echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\nUpdate available, proceed ? (Y/n)"
 	read ANSWER
 
 	case ${ANSWER} in 
@@ -41,23 +41,23 @@ if [ "$INSTALLED" == "$VERSION" ]
 		;;
 
 	*)
-		echo "Download ..."
-		ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
-		wget https://downloads.plex.tv/plex-media-server-new/${VERSION}/freebsd/PlexMediaServer-${VERSION}-${ARCH}.tar.bz2 > /dev/null 2>&1
-		echo "----"
+		echo -e "Download ..."
+		ARCHIVE="PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2"
+		wget https://downloads.plex.tv/plex-media-server-new/${LATEST_VERSION}/freebsd/PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2 > /dev/null 2>&1
+		echo -e "----"
 	
-		echo "Decompress ..."
+		echo -e "Decompress ..."
 		tar -xvf ${ARCHIVE} > /dev/null 2>&1
 		mv ${PLEX_TMP} ${PLEX_DIR}
-		rm PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
-		echo "----"
+		rm PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2
+		echo -e "----"
 
 	if [ "${PROCESS}" -ne "0" ] ; then	
-		echo "service stop ..."
-		sudo service plexmediaserver stop
-		echo "----"
+		echo -e "service stop ..."
+		$_SUDO service plexmediaserver stop
+		echo -e "----"
 	fi
-		echo "update in progress ..."
+		echo -e "update in progress ..."
 		cd ${PLEX_DIR}
 		ln -s "Plex Media Server" Plex_Media_Server
 		;;
@@ -66,17 +66,21 @@ if [ "$INSTALLED" == "$VERSION" ]
 	cd ${PLEX_PATH}
 	if [ -d ${PLEX_DIR_OLD} ]
 		then 
-			sudo rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
-			sudo mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir
-			sudo mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
-			echo "----"
-			echo "service start ..."
-			sudo service plexmediaserver start
-		else
-			sudo mv ${PLEX_DIR} ${PLEX_DIR_OLD}
-			sudo mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
-			echo "service start ..."
-			sudo service plexmediaserver start
+			$_SUDO rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
+			$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir, to rollback in case of issue with upgrade process
+			$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
+			echo -e "----\nservice start ..."
+			$_SUDO service plexmediaserver start
+		else # if previous old dir is missing
+			$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD}
+			$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
+			echo -e "service start ..."
+			$_SUDO service plexmediaserver start
 		fi
 	fi
+fi
+else
+  echo -e "Unable to fetch latest PMS version" # Network error ?
+  exit 1
+fi
 fi
