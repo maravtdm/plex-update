@@ -4,8 +4,7 @@ HOME_DIR=$HOME
 cd $HOME_DIR
 
 
-#LOCAL_VERSION=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
-LOCAL_VERSION=""
+LOCAL_VERSION=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
 LATEST_VERSION=$(w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd | awk -F"\"" '/Release id/ {print $4}')
 ARCH="FreeBSD-amd64"
 PLEX_TMP="PlexMediaServer-${LATEST_VERSION}"
