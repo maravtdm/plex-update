@@ -44,7 +44,7 @@ plex_replace_old() {
 	$_SUDO rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
 	$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir, to rollback in case of issue with upgrade process
 	$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
-	echo -e "----\nservice start ..."
+	echo -e "----\nstart PMS service ..."
 	$_SUDO service plexmediaserver start > /dev/null 2>&1
   }
 
