@@ -19,23 +19,23 @@ WGET=$(which wget)
 ### BEGIN FUNCTIONS ###
 
 plex_update() {
-  echo -e "Download ..."
+  echo -e "fetch latest PMS version ..."
 	ARCHIVE="PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2"
 	wget https://downloads.plex.tv/plex-media-server-new/${LATEST_VERSION}/freebsd/PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2 > /dev/null 2>&1
 	echo -e "----"
 	
-	echo -e "Decompress ..."
+	echo -e "untar the archive ..."
 	tar -xvf ${ARCHIVE} > /dev/null 2>&1
 	mv ${PLEX_TMP} ${PLEX_DIR}
 	rm PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2
 	echo -e "----"
 
 	if [ "${PROCESS}" -eq "0" ] ; then	
-	  echo -e "service stop ..."
+	  echo -e "stopping PMS service ..."
 		$_SUDO service plexmediaserver stop >/dev/null 2>&1
 		echo -e "----"
 	fi
-	echo -e "update in progress ..."
+	echo -e "update to latest version ..."
 	cd ${PLEX_DIR}
 	ln -s "Plex Media Server" Plex_Media_Server
   }
@@ -52,7 +52,7 @@ plex_replace_old() {
 plex_replace() {
   $_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD}
 	$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
-	echo -e "service start ..."
+	echo -e "start PMS service ..."
 	$_SUDO service plexmediaserver start >/dev/null 2>&1
   }
 
@@ -61,12 +61,12 @@ plex_replace() {
 ### BEGIN SCRIPT ###
 
 if test ! -f $WGET ; then
-  echo -e "You need to have wget installed before using this update script" 
+  echo -e "wget is needed before using this update script" 
   exit 0
   else
   if test ! -z $LATEST_VERSION ; then
     if [ $USER == "root" ];	then 
-    echo -e "Avoid running this script as root\nExiting ..."
+    echo -e "avoid running this script as root\nExiting ..."
 else
 
 cd $HOME_DIR
