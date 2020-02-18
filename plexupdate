@@ -67,6 +67,7 @@ if test ! -f $WGET ; then
   if test ! -z $LATEST_VERSION ; then
     if [ $USER == "root" ];	then 
     echo -e "avoid running this script as root\nExiting ..."
+    exit 1
 else
 
 cd $HOME_DIR
