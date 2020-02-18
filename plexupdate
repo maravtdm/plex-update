@@ -37,7 +37,7 @@ plex_update() {
 	fi
 	echo -e "update to latest version ..."
 	cd ${PLEX_DIR}
-	ln -s "Plex Media Server" Plex_Media_Server
+	ln -s 'Plex Media Server' Plex_Media_Server
   }
 
 plex_replace_old() {
