@@ -75,27 +75,27 @@ cd $HOME_DIR
 service plexmediaserver status >/dev/null 2>&1
 PROCESS=$?
 
-    if [ "$LOCAL_VERSION" == "$LATEST_VERSION" ]; then
-		    echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\n---\nYou already have the latest version !"
-	    else
-		    echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\nUpdate available, proceed ? (Y/n)"
-	    read ANSWER
+	if [ "$LOCAL_VERSION" == "$LATEST_VERSION" ]; then
+		echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\n---\nYou already have the latest version !"
+	else
+		echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\nUpdate available, proceed ? (Y/n)"
+		read ANSWER
 
-      case ${ANSWER} in 
-	      n)
-		      exit 0
-		      ;;
-	      *)
-		      plex_update
-          ;;
-	    esac
+	case ${ANSWER} in 
+	n)
+		exit 0
+		;;
+	*)
+		plex_update
+        	;;
+	esac
 
-      cd ${PLEX_PATH}
-	      if [ -d ${PLEX_DIR_OLD} ]; then 
-	        plex_replace_old
-        else 
-	        plex_replace
-	      fi
+	cd ${PLEX_PATH}
+	if [ -d ${PLEX_DIR_OLD} ]; then 
+		plex_replace_old
+	else 
+		plex_replace
+	fi
     fi
   fi
 
