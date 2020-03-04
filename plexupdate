@@ -61,12 +61,12 @@ plex_replace() {
 ### BEGIN SCRIPT ###
 
 if test ! -f $WGET ; then
-  echo -e "wget is needed before using this update script" 
+  echo -e "you nedd to install wget before using the script" 
   exit 0
   else
   	if test ! -z $LATEST_VERSION ; then
    	if [ $USER == "root" ];	then 
-    	echo -e "avoid running this script as root\nExiting ..."
+    	echo -e "avoid running the script as root\nExiting ..."
     	exit 1
 	else
 
