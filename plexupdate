@@ -61,7 +61,7 @@ plex_replace() {
 ### BEGIN SCRIPT ###
 
 if test ! -f $WGET ; then
-  echo -e "you nedd to install wget before using the script" 
+  echo -e "you need to install wget before using the script" 
   exit 0
   else
   	if test ! -z $LATEST_VERSION ; then
