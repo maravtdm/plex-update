@@ -41,31 +41,31 @@ plex_update() {
   }
 
 plex_replace_old() {
-	$_SUDO rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
-	$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir, to rollback in case of issue with upgrade process
-	$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
+	${_SUDO} rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
+	${_SUDO} mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir, to rollback in case of issue with upgrade process
+	${_SUDO} mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
 	echo -e "----\nstart PMS service ..."
-	$_SUDO service plexmediaserver start > /dev/null 2>&1
+	${_SUDO} service plexmediaserver start > /dev/null 2>&1
   }
 
 # if previous old dir is missing
 plex_replace() {
-  	$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD}
-	$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
+  	${_SUDO} mv ${PLEX_DIR} ${PLEX_DIR_OLD}
+	${_SUDO} mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
 	echo -e "start PMS service ..."
-	$_SUDO service plexmediaserver start >/dev/null 2>&1
+	${_SUDO} service plexmediaserver start >/dev/null 2>&1
   }
 
 ### END FUNCTIONS ###
 
 ### BEGIN SCRIPT ###
 
-if test ! -f $WGET ; then
+if test ! -f ${WGET} ; then
   echo -e "you need to install wget before using the script" 
   exit 0
   else
-  	if test ! -z $LATEST_VERSION ; then
-   	if [ $USER == "root" ];	then 
+  	if test ! -z ${LATEST_VERSION} ; then
+   	if [ ${USER} == "root" ];	then 
     	echo -e "avoid running the script as root\nExiting ..."
     	exit 1
 	else
@@ -75,10 +75,10 @@ cd $HOME_DIR
 service plexmediaserver status >/dev/null 2>&1
 PROCESS=$?
 
-	if [ "$LOCAL_VERSION" == "$LATEST_VERSION" ]; then
-		echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\n---\nYou already have the latest version !"
+	if [ "${LOCAL_VERSION}" == "${LATEST_VERSION}" ]; then
+		echo -e "Running version : ${LOCAL_VERSION}\nLatest release  : ${LATEST_VERSION}\n---\nYou already have the latest version !"
 	else
-		echo -e "Running version : $LOCAL_VERSION\nLatest release  : $LATEST_VERSION\nUpdate available, proceed ? (Y/n)"
+		echo -e "Running version : ${LOCAL_VERSION}\nLatest release  : ${LATEST_VERSION}\nUpdate available, proceed ? (Y/n)"
 		read ANSWER
 
 	case ${ANSWER} in 
