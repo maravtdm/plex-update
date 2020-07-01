@@ -1,106 +1,90 @@
-#!/usr/bin/env sh
-
-### BEGIN VARS ###
+#!/usr/bin/env bash
 
 HOME_DIR=$HOME
-LOCAL_VERSION=$(/usr/local/share/plexmediaserver/Plex_Media_Server --version | sed 's/v//')
-LATEST_VERSION=$(w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd | awk -F"\"" '/Release id/ {print $4}')
+cd $HOME_DIR
+
+INSTALLED=$(
+    /usr/local/share/plexmediaserver/Plex_Media_Server --version \
+    | sed 's/v//'
+    )
+VERSION=$(
+    w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
+    | awk -F"\"" '/Release id/ {print $4}'
+    )
 ARCH="FreeBSD-amd64"
-PLEX_TMP="PlexMediaServer-${LATEST_VERSION}"
+PLEX_TMP="PlexMediaServer-${VERSION}"
 PLEX_DIR="plexmediaserver"
 PLEX_DIR_OLD="plexmediaserver_old"
 PLEX_PATH="/usr/local/share"
 _SUDO="doas"
-WGET=$(which wget)
 
-### END VARS ###
+if [ $USER == "root" ];	then 
+	echo "Avoid running this script as root"
+	echo "Exiting ..."
+else
 
-
-### BEGIN FUNCTIONS ###
-
-plex_update() {
-  	echo -e "fetch latest PMS version ..."
-	ARCHIVE="PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2"
-	wget https://downloads.plex.tv/plex-media-server-new/${LATEST_VERSION}/freebsd/PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2 > /dev/null 2>&1
-	echo -e "----"
-	
-	echo -e "untar the archive ..."
-	tar -xvf ${ARCHIVE} > /dev/null 2>&1
-	mv ${PLEX_TMP} ${PLEX_DIR}
-	rm PlexMediaServer-${LATEST_VERSION}-${ARCH}.tar.bz2
-	echo -e "----"
-
-	if [ "${PROCESS}" -eq "0" ] ; then	
-	  echo -e "stopping PMS service ..."
-		$_SUDO service plexmediaserver stop >/dev/null 2>&1
-		echo -e "----"
-	fi
-	echo -e "update to latest version ..."
-	cd ${PLEX_DIR}
-	ln -s 'Plex Media Server' Plex_Media_Server
-  }
-
-plex_replace_old() {
-	${_SUDO} rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
-	${_SUDO} mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir, to rollback in case of issue with upgrade process
-	${_SUDO} mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
-	echo -e "----\nstart PMS service ..."
-	${_SUDO} service plexmediaserver start > /dev/null 2>&1
-  }
-
-# if previous old dir is missing
-plex_replace() {
-  	${_SUDO} mv ${PLEX_DIR} ${PLEX_DIR_OLD}
-	${_SUDO} mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
-	echo -e "start PMS service ..."
-	${_SUDO} service plexmediaserver start >/dev/null 2>&1
-  }
-
-### END FUNCTIONS ###
-
-### BEGIN SCRIPT ###
-
-if test ! -f ${WGET} ; then
-  echo -e "you need to install wget before using the script" 
-  exit 0
-  else
-  	if test ! -z ${LATEST_VERSION} ; then
-   	if [ ${USER} == "root" ];	then 
-    	echo -e "avoid running the script as root\nExiting ..."
-    	exit 1
-	else
-
-cd $HOME_DIR
-
-service plexmediaserver status >/dev/null 2>&1
+status plexmediaserver >/dev/null 2>&1
 PROCESS=$?
 
-	if [ "${LOCAL_VERSION}" == "${LATEST_VERSION}" ]; then
-		echo -e "Running version : ${LOCAL_VERSION}\nLatest release  : ${LATEST_VERSION}\n---\nYou already have the latest version !"
+if [ "$INSTALLED" == "$VERSION" ]
+	then
+		echo "Running version : $INSTALLED"
+		echo "Latest release  : $VERSION"
+		echo " ________________________"
+		echo "|                        |"
+		echo "| No news is good news ! |"
+		echo "|________________________|"
+	#	echo "--------------------------"
+		echo ""
 	else
-		echo -e "Running version : ${LOCAL_VERSION}\nLatest release  : ${LATEST_VERSION}\nUpdate available, proceed ? (Y/n)"
-		read ANSWER
+		echo "Running version : $INSTALLED"
+		echo "Latest release  : $VERSION"
+	echo "Update available, proceed ? (Y/n)"
+	read ANSWER
 
 	case ${ANSWER} in 
 	n)
 		exit 0
 		;;
+
 	*)
-		plex_update
-        	;;
+		echo "Download ..."
+		ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
+		wget https://downloads.plex.tv/plex-media-server-new/${VERSION}/freebsd/PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
+		echo "----"
+	
+		echo "Decompress ..."
+		tar -xvf ${ARCHIVE} > /dev/null 2>&1
+		mv ${PLEX_TMP} ${PLEX_DIR}
+		rm PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
+		echo "----"
+
+	if [ "${PROCESS}" -ne "0" ] ; then	
+		echo "service stop ..."
+		$_SUDO service plexmediaserver stop
+		echo "----"
+	fi
+		echo "update in progress ..."
+		cd ${PLEX_DIR}
+		ln -s "Plex Media Server" Plex_Media_Server
+		;;
 	esac
 
 	cd ${PLEX_PATH}
-	if [ -d ${PLEX_DIR_OLD} ]; then 
-		plex_replace_old
-	else 
-		plex_replace
+	if [ -d ${PLEX_DIR_OLD} ]
+		then 
+			$_SUDO rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
+			$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir
+			$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/ # Move new dir to plex path
+			echo "----"
+			echo "service start ..."
+			$_SUDO service plexmediaserver start
+		else
+			$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD}
+			$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
+			echo "service start ..."
+			$_SUDO service plexmediaserver start
+		fi
 	fi
-    fi
-  fi
-
-  else
-    echo -e "Unable to fetch latest PMS version" # Network error ?
-    exit 1
-  fi
 fi
+
