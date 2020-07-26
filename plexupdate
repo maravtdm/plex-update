@@ -87,4 +87,3 @@ if [ "$INSTALLED" == "$VERSION" ]
 		fi
 	fi
 fi
-
