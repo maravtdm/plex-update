@@ -3,9 +3,13 @@
 Bash script for updating Plex Media Server under FreeBSD (because it's not possible from the WebUI)
 
 Prerequisite :
-- wget
-- w3m
-- doas
+- wget  
+- w3m  
+- doas  
+
+Add the line to /usr/local/etc/doas.conf  
+__permit nopass :GROUP__  
+where GROUP is your primary group
 
 In case of trouble, and you want to rollback:
 - just remove the **/usr/local/share/plexmediaserver** directory
