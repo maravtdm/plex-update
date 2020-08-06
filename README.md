@@ -7,7 +7,7 @@ Prerequisite :
 - w3m  
 - doas  
 
-Add the line to /usr/local/etc/doas.conf  
+Add this line to /usr/local/etc/doas.conf  
 __permit nopass :GROUP__  
 where GROUP is your primary group
 
