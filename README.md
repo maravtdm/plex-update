@@ -7,7 +7,7 @@ Prerequisite :
 
 Add this line to /usr/local/etc/doas.conf  
 __permit nopass :GROUP__  
-where GROUP is your primary group
+where GROUP is your user group
 
 If you have any issue, and you want to rollback:
 - just remove the **/usr/local/share/plexmediaserver** directory
