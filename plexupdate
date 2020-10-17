@@ -1,14 +1,13 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-_HOME_DIR=$HOME
-cd $_HOME_DIR
+cd $HOME
 
 _INSTALLED=$(
     /usr/local/share/plexmediaserver/Plex_Media_Server --version \
     | sed 's/v//'
     )
 _VERSION=$(
-    w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
+    curl -q --no-progress-meter https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
     | awk -F"\"" '/Release id/ {print $4}'
     )
 _ARCH="FreeBSD-amd64"
@@ -48,7 +47,7 @@ if [ "$_INSTALLED" == "$_VERSION" ]
 	*)
 		echo "Download ..."
 		_ARCHIVE="PlexMediaServer-$_VERSION-$_ARCH.tar.bz2"
-		wget https://downloads.plex.tv/plex-media-server-new/$_VERSION/freebsd/PlexMediaServer-$_VERSION-$_ARCH.tar.bz2
+		curl -q --no-progress-meter -o PlexMediaServer-$_VERSION-$_ARCH.tar.bz2 https://downloads.plex.tv/plex-media-server-new/$_VERSION/freebsd/PlexMediaServer-$_VERSION-$_ARCH.tar.bz2
 		echo "----"
 	
 		echo "Decompress ..."
