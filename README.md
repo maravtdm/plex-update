@@ -11,7 +11,7 @@ Add this line to /usr/local/etc/doas.conf
 __permit nopass :GROUP__  
 where GROUP is your primary group
 
-In case of trouble, and you want to rollback:
+If you have any issue, and you want to rollback:
 - just remove the **/usr/local/share/plexmediaserver** directory
 - move **/usr/local/share/plexmediaserver_old** to **/usr/local/share/plexmediaserver**
 
