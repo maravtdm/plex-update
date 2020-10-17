@@ -12,14 +12,14 @@ _VERSION=$(
     | awk -F"\"" '/Release id/ {print $4}'
     )
 _ARCH="FreeBSD-amd64"
-_PLEX_TMP="PlexMediaServer-$_VERSION"
+_PLEX_TMP="PlexMediaServer-${_VERSION}"
 _PLEX_DIR="plexmediaserver"
 _PLEX_DIR_OLD="plexmediaserver_old"
 _PLEX_PATH="/usr/local/share"
 _SUDO="doas"
-_ARCHIVE="PlexMediaServer-$_VERSION-$_ARCH.tar.bz2"
+_ARCHIVE="PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2"
 
-if [ "$_USER" == "root" ];	then 
+if [ "${_USER}" == "root" ];	then 
 	echo "Avoid running this script as root"
 	echo "Exiting ..."
   exit 0
@@ -28,20 +28,20 @@ else
 status plexmediaserver >/dev/null 2>&1
 _PROCESS=$?
 
-if [ "$_INSTALLED" == "$_VERSION" ]
+if [ "${_INSTALLED}" == "${_VERSION}" ]
 	then
-		echo "Running version : $_INSTALLED"
-		echo "Latest release  : $_VERSION"
+		echo "Running version : ${_INSTALLED}"
+		echo "Latest release  : ${_VERSION}"
 		echo ""
 		echo -e "You already have latest version"
 		echo ""
 	else
-		echo "Running version : $_INSTALLED"
-		echo "Latest release  : $_VERSION"
+		echo "Running version : ${_INSTALLED}"
+		echo "Latest release  : ${_VERSION}"
 	echo "Update available, proceed ? (Y/n)"
 	read _ANSWER
 
-	case $_ANSWER in 
+	case ${_ANSWER} in 
 	n)
 		exit 0
 		;;
