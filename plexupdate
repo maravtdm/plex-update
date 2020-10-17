@@ -1,87 +1,90 @@
 #!/usr/bin/env bash
 
-HOME_DIR=$HOME
-cd $HOME_DIR
+_HOME_DIR=$HOME
+cd $_HOME_DIR
 
-INSTALLED=$(
+_INSTALLED=$(
     /usr/local/share/plexmediaserver/Plex_Media_Server --version \
     | sed 's/v//'
     )
-VERSION=$(
+_VERSION=$(
     w3m -dump https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
     | awk -F"\"" '/Release id/ {print $4}'
     )
-ARCH="FreeBSD-amd64"
-PLEX_TMP="PlexMediaServer-${VERSION}"
-PLEX_DIR="plexmediaserver"
-PLEX_DIR_OLD="plexmediaserver_old"
-PLEX_PATH="/usr/local/share"
+_ARCH="FreeBSD-amd64"
+_PLEX_TMP="PlexMediaServer-$_VERSION"
+_PLEX_DIR="plexmediaserver"
+_PLEX_DIR_OLD="plexmediaserver_old"
+_PLEX_PATH="/usr/local/share"
 _SUDO="doas"
 
-if [ $USER == "root" ];	then 
+if [ "$_USER" == "root" ];	then 
 	echo "Avoid running this script as root"
 	echo "Exiting ..."
+  exit 0
 else
 
 status plexmediaserver >/dev/null 2>&1
-PROCESS=$?
+_PROCESS=$?
 
-if [ "$INSTALLED" == "$VERSION" ]
+if [ "$_INSTALLED" == "$_VERSION" ]
 	then
-		echo "Running version : $INSTALLED"
-		echo "Latest release  : $VERSION"
-		echo " ________________________"
-		echo "|                        |"
-		echo "| No news is good news ! |"
-		echo "|________________________|"
-	#	echo "--------------------------"
+		echo "Running version : $_INSTALLED"
+		echo "Latest release  : $_VERSION"
+		echo ""
+		echo -e "You already have latest version"
 		echo ""
 	else
-		echo "Running version : $INSTALLED"
-		echo "Latest release  : $VERSION"
+		echo "Running version : $_INSTALLED"
+		echo "Latest release  : $_VERSION"
 	echo "Update available, proceed ? (Y/n)"
-	read ANSWER
+	read _ANSWER
 
-	case ${ANSWER} in 
+	case $_ANSWER in 
 	n)
 		exit 0
 		;;
 
 	*)
 		echo "Download ..."
-		ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
-		wget https://downloads.plex.tv/plex-media-server-new/${VERSION}/freebsd/PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
+		_ARCHIVE="PlexMediaServer-$_VERSION-$_ARCH.tar.bz2"
+		wget https://downloads.plex.tv/plex-media-server-new/$_VERSION/freebsd/PlexMediaServer-$_VERSION-$_ARCH.tar.bz2
 		echo "----"
 	
 		echo "Decompress ..."
-		tar -xvf ${ARCHIVE} > /dev/null 2>&1
-		mv ${PLEX_TMP} ${PLEX_DIR}
-		rm PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
+		tar -xvf $_ARCHIVE > /dev/null 2>&1
+		mv $_PLEX_TMP $_PLEX_DIR
+		rm PlexMediaServer-$_VERSION-$_ARCH.tar.bz2
 		echo "----"
 
-	if [ "${PROCESS}" -ne "0" ] ; then	
+	if [ "$_PROCESS" -ne "0" ] ; then	
 		echo "service stop ..."
 		$_SUDO service plexmediaserver stop
 		echo "----"
 	fi
 		echo "update in progress ..."
-		cd ${PLEX_DIR}
+		cd $_PLEX_DIR
 		ln -s "Plex Media Server" Plex_Media_Server
 		;;
 	esac
 
-	cd ${PLEX_PATH}
-	if [ -d ${PLEX_DIR_OLD} ]
+	cd $_PLEX_PATH
+	if [ -d $_PLEX_DIR_OLD ]
 		then 
-			$_SUDO rm -rf ${PLEX_DIR_OLD} # Remove previous old dir
-			$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD} # Move current dir to old dir
-			$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/ # Move new dir to plex path
+      # Remove previous old dir
+			$_SUDO rm -rf $_PLEX_DIR_OLD
+      # Move current dir to old dir
+			$_SUDO mv $_PLEX_DIR $_PLEX_DIR_OLD
+      # Move new dir to plex path
+			$_SUDO mv $_HOME_DIR/$_PLEX_DIR $_PLEX_PATH/
 			echo "----"
 			echo "service start ..."
 			$_SUDO service plexmediaserver start
 		else
-			$_SUDO mv ${PLEX_DIR} ${PLEX_DIR_OLD}
-			$_SUDO mv ${HOME_DIR}/${PLEX_DIR} ${PLEX_PATH}/
+      # Move current dir to old dir
+			$_SUDO mv $_PLEX_DIR $_PLEX_DIR_OLD
+      # Move new dir to plex path
+			$_SUDO mv $_HOME_DIR/$_PLEX_DIR $_PLEX_PATH/
 			echo "service start ..."
 			$_SUDO service plexmediaserver start
 		fi
