@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-_HOME=$HOME
-cd ${_HOME}
-
 _INSTALLED=$(
     /usr/local/share/plexmediaserver/Plex_Media_Server --version \
     | sed 's/v//'
@@ -18,6 +15,11 @@ _PLEX_DIR_OLD="plexmediaserver_old"
 _PLEX_PATH="/usr/local/share"
 _SUDO="doas"
 _ARCHIVE="PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2"
+_HOME=$HOME
+_USER=$USER
+
+
+cd ${_HOME}
 
 if [ "${_USER}" == "root" ];	then 
 	echo "Avoid running this script as root"
