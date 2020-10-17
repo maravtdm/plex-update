@@ -1,10 +1,8 @@
 # plex-update
 
-Bash script for updating Plex Media Server under FreeBSD (because it's not possible from the WebUI)
+Shell script for updating Plex Media Server under FreeBSD (because it's not possible from the WebUI)
 
 Prerequisite :
-- wget  
-- w3m  
 - doas  
 
 Add this line to /usr/local/etc/doas.conf  
