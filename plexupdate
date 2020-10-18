@@ -27,8 +27,8 @@ if [ "${_USER}" == "root" ];	then
 	exit 0
 else
 
-status plexmediaserver >/dev/null 2>&1
-_PROCESS=$?
+	status plexmediaserver >/dev/null 2>&1
+	_PROCESS=$?
 
 	if [ "${_INSTALLED}" == "${_VERSION}" ]; then
 		echo "Running version : ${_INSTALLED}"
@@ -56,13 +56,11 @@ _PROCESS=$?
 			mv ${_PLEX_TMP} ${_PLEX_DIR}
 			rm PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2
 			echo "----"
-
 			if [ "${_PROCESS}" -ne "0" ] ; then	
 				echo "service stop ..."
 				${_SUDO} service plexmediaserver stop
 				echo "----"
 			fi
-
 			echo "update in progress ..."
 			cd ${_PLEX_DIR}
 			ln -s "Plex Media Server" Plex_Media_Server
