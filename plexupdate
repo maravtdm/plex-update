@@ -9,7 +9,7 @@ _ARCH="FreeBSD-amd64"
 _PLEX_TMP="PlexMediaServer-${_VERSION}"
 _PLEX_DIR="plexmediaserver"
 _PLEX_DIR_OLD="plexmediaserver_old"
-_PLEX_PATH="/usr/local/share"
+_PLEX_PATH="/usr/local/share/"
 _SUDO="doas"
 _ARCHIVE="PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2"
 _HOME=$HOME
@@ -26,7 +26,7 @@ _VERSION=$(
 
 cd ${_HOME}
 
-if [ "${_USER}" == "root" ]; then
+if [ ${_USER} == root ]; then
 	echo "Avoid running this script as root"
 	echo "Exiting ..."
 	exit 0
@@ -35,7 +35,7 @@ else
 	status plexmediaserver >/dev/null 2>&1
 	_PROCESS=$?
 
-	if [ "${_INSTALLED}" == "${_VERSION}" ]; then
+	if [ ${_INSTALLED} == ${_VERSION} ]; then
 		echo "Running version : ${_INSTALLED}"
 		echo "Latest release  : ${_VERSION}"
 		echo ""
@@ -79,7 +79,7 @@ else
 			# Move current dir to old dir
 			${_SUDO} mv ${_PLEX_DIR} ${_PLEX_DIR_OLD}
 			# Move new dir to plex path
-			${_SUDO} mv ${_HOME}/${_PLEX_DIR} ${_PLEX_PATH}/
+			${_SUDO} mv ${_HOME}/${_PLEX_DIR} ${_PLEX_PATH}
 			echo "----"
 			echo "service start ..."
 			${_SUDO} service plexmediaserver start
@@ -87,7 +87,7 @@ else
 			# Move current dir to old dir
 			${_SUDO} mv ${_PLEX_DIR} ${_PLEX_DIR_OLD}
 			# Move new dir to plex path
-			${_SUDO} mv ${_HOME}/${_PLEX_DIR} ${_PLEX_PATH}/
+			${_SUDO} mv ${_HOME}/${_PLEX_DIR} ${_PLEX_PATH}
 			echo "service start ..."
 			${_SUDO} service plexmediaserver start
 		fi
