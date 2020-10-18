@@ -21,7 +21,7 @@ _VERSION=$(
 
 cd ${_HOME}
 
-if [ "${_USER}" == "root" ];	then 
+if [ "${_USER}" == "root" ]; then
 	echo "Avoid running this script as root"
 	echo "Exiting ..."
 	exit 0
@@ -56,7 +56,7 @@ else
 			mv ${_PLEX_TMP} ${_PLEX_DIR}
 			rm PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2
 			echo "----"
-			if [ "${_PROCESS}" -ne "0" ] ; then	
+			if [ "${_PROCESS}" -ne "0" ]; then
 				echo "service stop ..."
 				${_SUDO} service plexmediaserver stop
 				echo "----"
@@ -68,7 +68,7 @@ else
 		esac
 
 		cd ${_PLEX_PATH}
-		if [ -d ${_PLEX_DIR_OLD} ]; then 
+		if [ -d ${_PLEX_DIR_OLD} ]; then
 			# Remove previous old dir
 			${_SUDO} rm -rf ${_PLEX_DIR_OLD}
 			# Move current dir to old dir
