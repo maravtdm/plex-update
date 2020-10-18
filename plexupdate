@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+
 ### Script to update Plex Media Server to the latest FreeBSD version
 ### Put the script in your $HOME/bin directory i.e.
 ### and make it executable : chmod +x $HOME/bin/plexupdate
