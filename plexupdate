@@ -4,6 +4,14 @@
 ### Put the script in your $HOME/bin directory i.e.
 ### and make it executable : chmod +x $HOME/bin/plexupdate
 
+_INSTALLED=$(
+	/usr/local/share/plexmediaserver/Plex_Media_Server --version \
+	| sed 's/v//'
+	)
+_VERSION=$(
+	curl -q --no-progress-meter https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
+	| awk -F"\"" '/Release id/ {print $4}'
+	)
 
 _ARCH="FreeBSD-amd64"
 _PLEX_TMP="PlexMediaServer-${_VERSION}"
@@ -14,15 +22,6 @@ _SUDO="doas"
 _ARCHIVE="PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2"
 _HOME=$HOME
 _USER=$USER
-
-_INSTALLED=$(
-	/usr/local/share/plexmediaserver/Plex_Media_Server --version \
-	| sed 's/v//'
-	)
-_VERSION=$(
-	curl -q --no-progress-meter https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
-	| awk -F"\"" '/Release id/ {print $4}'
-	)
 
 cd ${_HOME}
 
