@@ -38,7 +38,7 @@ else
 		echo "Running version : ${_INSTALLED}"
 		echo "Latest release  : ${_VERSION}"
 		echo ""
-		echo -e "You already have latest version"
+		echo -e "No news is good news"
 		echo ""
 	else
 		echo "Running version : ${_INSTALLED}"
