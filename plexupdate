@@ -56,7 +56,7 @@ else
 			echo "Decompress ..."
 			tar -xvf ${SRC}/${ARCHIVE} -C ${SRC} >/dev/null 2>&1
 			mv ${SRC}/${PLEX_INIT_DIR} ${SRC}/${PLEX_DIR}
-			rm ${SRC}/${ARCHIVE} #PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
+			rm ${SRC}/${ARCHIVE}
 			echo "----"
 			if [ "$PROCESS" -eq "0" ]; then
 				echo "service stop ..."
