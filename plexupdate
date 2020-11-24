@@ -15,16 +15,16 @@ VERSION=$(
 	)
 
 ARCH="FreeBSD-amd64"
-PLEX_TMP="PlexMediaServer-${VERSION}"
+PLEX_INIT_DIR="PlexMediaServer-${VERSION}"
 PLEX_DIR="plexmediaserver"
-PLEX_DIR_OLD="plexmediaserver_old"
-PLEX_PATH="/usr/local/share"
+PLEX_OLD_DIR="plexmediaserver_old"
+PLEX_INSTALL_PATH="/usr/local/share"
 ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
 SRC="/usr/local/src"
 USER=$USER
 
 if [ "$USER" != "root" ]; then
-	echo "You need to be root to execute this script"
+	echo "You must be root to run this script"
 	echo "Exiting ..."
 	exit 0
 else
@@ -55,7 +55,7 @@ else
 			echo "----"
 			echo "Decompress ..."
 			tar -xvf ${SRC}/${ARCHIVE} -C ${SRC} >/dev/null 2>&1
-			mv ${SRC}/${PLEX_TMP} ${SRC}/${PLEX_DIR}
+			mv ${SRC}/${PLEX_INIT_DIR} ${SRC}/${PLEX_DIR}
 			rm ${SRC}/${ARCHIVE} #PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
 			echo "----"
 			if [ "$PROCESS" -eq "0" ]; then
@@ -72,20 +72,20 @@ else
 	# We move current plex directory to plex_old dir
 	# We move new plex directory into plex path
 	# Change the owner plex:plex for plex directory
-		if [ -d "${PLEX_PATH}/${PLEX_DIR_OLD}" ]; then
-			rm -rf ${PLEX_PATH}/${PLEX_DIR_OLD}
-			mv ${PLEX_PATH}/${PLEX_DIR} ${PLEX_PATH}/${PLEX_DIR_OLD}
-			mv ${SRC}/${PLEX_DIR} ${PLEX_PATH}/
-			ln -s "${PLEX_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_PATH}/${PLEX_DIR}/Plex_Media_Server"
-			chown -R plex:plex ${PLEX_PATH}/${PLEX_DIR}
+		if [ -d "${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}" ]; then
+			rm -rf ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
+			mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
+			mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
+			ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
+			chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
 			echo "----"
 			echo "service start ..."
 			service plexmediaserver start >/dev/null 2>&1
 		else
-			mv ${PLEX_PATH}/${PLEX_DIR} ${PLEX_PATH}/${PLEX_DIR_OLD}
-			mv ${SRC}/${PLEX_DIR} ${PLEX_PATH}/
-			ln -s "${PLEX_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_PATH}/${PLEX_DIR}/Plex_Media_Server"
-			chown -R plex:plex ${PLEX_PATH}/${PLEX_DIR}
+			mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
+			mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
+			ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
+			chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
 			echo "service start ..."
 			service plexmediaserver start >/dev/null 2>&1
 		fi
