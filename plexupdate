@@ -4,91 +4,91 @@
 ### Put the script in your $HOME/bin directory i.e.
 ### and make it executable : chmod +x $HOME/bin/plexupdate
 
-_INSTALLED=$(
+INSTALLED=$(
 	/usr/local/share/plexmediaserver/Plex_Media_Server --version \
 	| sed 's/v//'
 	)
-_VERSION=$(
-	curl -q --no-progress-meter https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
+VERSION=$(
+	curl -q --no-progress-meter \
+	https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
 	| awk -F"\"" '/Release id/ {print $4}'
 	)
 
-_ARCH="FreeBSD-amd64"
-_PLEX_TMP="PlexMediaServer-${_VERSION}"
-_PLEX_DIR="plexmediaserver"
-_PLEX_DIR_OLD="plexmediaserver_old"
-_PLEX_PATH="/usr/local/share/"
-_SUDO="doas"
-_ARCHIVE="PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2"
-_HOME=$HOME
-_USER=$USER
+ARCH="FreeBSD-amd64"
+PLEX_TMP="PlexMediaServer-${VERSION}"
+PLEX_DIR="plexmediaserver"
+PLEX_DIR_OLD="plexmediaserver_old"
+PLEX_PATH="/usr/local/share"
+SUDO="doas"
+ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
+SRC="/usr/local/src"
+USER=$USER
 
-cd ${_HOME}
-
-if [ ${_USER} == root ]; then
-	echo "Avoid running this script as root"
+if [ "$USER" != "root" ]; then
+	echo "You must be root to run this script"
 	echo "Exiting ..."
 	exit 0
 else
 
-	status plexmediaserver >/dev/null 2>&1
-	_PROCESS=$?
+ service plexmediaserver status >/dev/null 2>&1
+	PROCESS=$?
 
-	if [ ${_INSTALLED} == ${_VERSION} ]; then
-		echo "Running version : ${_INSTALLED}"
-		echo "Latest release  : ${_VERSION}"
+	if [ "$INSTALLED" == "$VERSION" ]; then
+		echo "Running : $INSTALLED"
+		echo "Latest  : $VERSION"
 		echo ""
 		echo -e "No news is good news"
 		echo ""
 	else
-		echo "Running version : ${_INSTALLED}"
-		echo "Latest release  : ${_VERSION}"
+		echo "Running : $INSTALLED"
+		echo "Latest  : $VERSION"
 		echo "Update available, proceed ? (Y/n)"
-		read _ANSWER
+		read ANSWER
 
-		case ${_ANSWER} in 
+		case $ANSWER in 
 			n) 
 			exit 0
 			;;
       
 			*)
 			echo "Download ..."
-			curl -q --no-progress-meter -o ${_ARCHIVE}  https://downloads.plex.tv/plex-media-server-new/${_VERSION}/freebsd/${_ARCHIVE}
+			curl -q --no-progress-meter --output-dir ${SRC} -o ${ARCHIVE} https://downloads.plex.tv/plex-media-server-new/${VERSION}/freebsd/${ARCHIVE}
 			echo "----"
 			echo "Decompress ..."
-			tar -xvf ${_ARCHIVE} > /dev/null 2>&1
-			mv ${_PLEX_TMP} ${_PLEX_DIR}
-			rm PlexMediaServer-${_VERSION}-${_ARCH}.tar.bz2
+			tar -xvf ${SRC}/${ARCHIVE} -C ${SRC} >/dev/null 2>&1
+			mv ${SRC}/${PLEX_TMP} ${SRC}/${PLEX_DIR}
+			rm ${SRC}/${ARCHIVE} #PlexMediaServer-${VERSION}-${ARCH}.tar.bz2
 			echo "----"
-			if [ "${_PROCESS}" -ne "0" ]; then
+			if [ "$PROCESS" -eq "0" ]; then
 				echo "service stop ..."
-				${_SUDO} service plexmediaserver stop
+				service plexmediaserver stop >/dev/null 2>&1
 				echo "----"
 			fi
 			echo "update in progress ..."
-			cd ${_PLEX_DIR}
-			ln -s "Plex Media Server" Plex_Media_Server
+			sleep 2
 			;;
 		esac
 
-		cd ${_PLEX_PATH}
-		if [ -d ${_PLEX_DIR_OLD} ]; then
-			# Remove previous old dir
-			${_SUDO} rm -rf ${_PLEX_DIR_OLD}
-			# Move current dir to old dir
-			${_SUDO} mv ${_PLEX_DIR} ${_PLEX_DIR_OLD}
-			# Move new dir to plex path
-			${_SUDO} mv ${_HOME}/${_PLEX_DIR} ${_PLEX_PATH}
+	# We remove previous plex_old dir
+	# We move current plex directory to plex_old dir
+	# We move new plex directory into plex path
+	# Change the owner plex:plex for plex directory
+		if [ -d "${PLEX_PATH}/${PLEX_DIR_OLD}" ]; then
+			rm -rf ${PLEX_PATH}/${PLEX_DIR_OLD}
+			mv ${PLEX_PATH}/${PLEX_DIR} ${PLEX_PATH}/${PLEX_DIR_OLD}
+			mv ${SRC}/${PLEX_DIR} ${PLEX_PATH}/
+			ln -s "${PLEX_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_PATH}/${PLEX_DIR}/Plex_Media_Server"
+			chown -R plex:plex ${PLEX_PATH}/${PLEX_DIR}
 			echo "----"
 			echo "service start ..."
-			${_SUDO} service plexmediaserver start
+			service plexmediaserver start >/dev/null 2>&1
 		else
-			# Move current dir to old dir
-			${_SUDO} mv ${_PLEX_DIR} ${_PLEX_DIR_OLD}
-			# Move new dir to plex path
-			${_SUDO} mv ${_HOME}/${_PLEX_DIR} ${_PLEX_PATH}
+			mv ${PLEX_PATH}/${PLEX_DIR} ${PLEX_PATH}/${PLEX_DIR_OLD}
+			mv ${SRC}/${PLEX_DIR} ${PLEX_PATH}/
+			ln -s "${PLEX_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_PATH}/${PLEX_DIR}/Plex_Media_Server"
+			chown -R plex:plex ${PLEX_PATH}/${PLEX_DIR}
 			echo "service start ..."
-			${_SUDO} service plexmediaserver start
+			service plexmediaserver start >/dev/null 2>&1
 		fi
 	fi
 fi
