@@ -71,7 +71,7 @@ else
 	# We remove previous plex_old dir
 	# We move current plex directory to plex_old dir
 	# We move new plex directory into plex path
-	# Change the owner plex:plex for plex directory
+	# Change the owner (plex:plex) of plex directory
 		if [ -d "${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}" ]; then
 			rm -rf ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
 			mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
