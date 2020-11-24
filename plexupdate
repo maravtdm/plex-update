@@ -21,7 +21,6 @@ PLEX_OLD_DIR="plexmediaserver_old"
 PLEX_INSTALL_PATH="/usr/local/share"
 ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
 SRC="/usr/local/src"
-USER=$USER
 
 if [ "$USER" != "root" ]; then
 	echo "You must be root to run this script"
