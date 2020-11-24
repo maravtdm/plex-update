@@ -19,13 +19,12 @@ PLEX_TMP="PlexMediaServer-${VERSION}"
 PLEX_DIR="plexmediaserver"
 PLEX_DIR_OLD="plexmediaserver_old"
 PLEX_PATH="/usr/local/share"
-SUDO="doas"
 ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
 SRC="/usr/local/src"
 USER=$USER
 
 if [ "$USER" != "root" ]; then
-	echo "You must be root to run this script"
+	echo "You need to be root to execute this script"
 	echo "Exiting ..."
 	exit 0
 else
