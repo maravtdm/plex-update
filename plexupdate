@@ -1,92 +1,102 @@
 #!/usr/bin/env sh
-
 ### Script to update Plex Media Server to the latest FreeBSD version
 ### Put the script in your $HOME/bin directory i.e.
 ### and make it executable : chmod +x $HOME/bin/plexupdate
 
-INSTALLED=$(
-	/usr/local/share/plexmediaserver/Plex_Media_Server --version \
-	| sed 's/v//'
-	)
-VERSION=$(
-	curl -q --no-progress-meter \
-	https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
-	| awk -F"\"" '/Release id/ {print $4}'
-	)
+if [ "$USER" != "root" ]; then
+  echo "You must be root to run this script"
+  echo "Exiting ..."
+  exit 0
+else
 
 ARCH="FreeBSD-amd64"
-PLEX_INIT_DIR="PlexMediaServer-${VERSION}"
 PLEX_DIR="plexmediaserver"
 PLEX_OLD_DIR="plexmediaserver_old"
 PLEX_INSTALL_PATH="/usr/local/share"
-ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
 SRC="/usr/local/src"
 
-if [ "$USER" != "root" ]; then
-	echo "You must be root to run this script"
-	echo "Exiting ..."
-	exit 0
+if [ -d "$PLEX_INSTALL_PATH/$PLEX_DIR" ]; then
+  INSTALLED=$(
+    /usr/local/share/plexmediaserver/Plex_Media_Server --version \
+    | sed 's/v//'
+    )
 else
+  INSTALLED="0"
+fi
 
- service plexmediaserver status >/dev/null 2>&1
-	PROCESS=$?
+	VERSION=$(
+    curl -q --no-progress-meter \
+    https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
+    | awk -F"\"" '/Release id/ {print $4}'
+    )
 
-	if [ "$INSTALLED" == "$VERSION" ]; then
-		echo "Running : $INSTALLED"
-		echo "Latest  : $VERSION"
-		echo ""
-		echo -e "No news is good news"
-		echo ""
-	else
-		echo "Running : $INSTALLED"
-		echo "Latest  : $VERSION"
-		echo "Update available, proceed ? (Y/n)"
-		read ANSWER
+PLEX_INIT_DIR="PlexMediaServer-${VERSION}"
+ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
+service plexmediaserver status >/dev/null 2>&1
+PROCESS=$?
 
-		case $ANSWER in 
-			n) 
-			exit 0
-			;;
-      
-			*)
-			echo "Download ..."
-			curl -q --no-progress-meter --output-dir ${SRC} -o ${ARCHIVE} https://downloads.plex.tv/plex-media-server-new/${VERSION}/freebsd/${ARCHIVE}
-			echo "----"
-			echo "Decompress ..."
-			tar -xvf ${SRC}/${ARCHIVE} -C ${SRC} >/dev/null 2>&1
-			mv ${SRC}/${PLEX_INIT_DIR} ${SRC}/${PLEX_DIR}
-			rm ${SRC}/${ARCHIVE}
-			echo "----"
-			if [ "$PROCESS" -eq "0" ]; then
-				echo "service stop ..."
-				service plexmediaserver stop >/dev/null 2>&1
-				echo "----"
-			fi
-			echo "update in progress ..."
-			sleep 2
-			;;
-		esac
+case $INSTALLED in 
+  $VERSION)
+    echo "Running : $INSTALLED"
+    echo "Latest  : $VERSION"
+    echo ""
+    echo -e "No news is good news"
+    echo ""
+    exit 0
+    ;;
+  0)
+    echo "Running : Not installed"
+    echo "Install Plex Media Server $VERSION ? (Y/n)"
+    read ANSWER
+    ;;
+  *)
+    echo "Running : $INSTALLED"
+    echo "Latest  : $VERSION"
+    echo "Upgrade Plex Media Server ? (Y/n)"
+    read ANSWER
+    ;;
+esac
 
-	# We remove previous plex_old dir
-	# We move current plex directory to plex_old dir
-	# We move new plex directory into plex path
-	# Change the owner (plex:plex) of plex directory
-		if [ -d "${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}" ]; then
-			rm -rf ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
-			mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
-			mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
-			ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
-			chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
-			echo "----"
-			echo "service start ..."
-			service plexmediaserver start >/dev/null 2>&1
-		else
-			mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
-			mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
-			ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
-			chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
-			echo "service start ..."
-			service plexmediaserver start >/dev/null 2>&1
-		fi
-	fi
+case $ANSWER in 
+  n) 
+    exit 0
+    ;;
+  *)
+    echo "Downloading..."
+    curl -q --no-progress-meter --output-dir ${SRC} -o ${ARCHIVE} https://downloads.plex.tv/plex-media-server-new/${VERSION}/freebsd/${ARCHIVE}
+    echo "Unarchiving..."
+    tar -xvf ${SRC}/${ARCHIVE} -C ${SRC} >/dev/null 2>&1
+    mv ${SRC}/${PLEX_INIT_DIR} ${SRC}/${PLEX_DIR}
+    rm ${SRC}/${ARCHIVE}
+    if [ "$PROCESS" -eq "0" ]; then
+      echo "service stop ..."
+      service plexmediaserver stop >/dev/null 2>&1
+    fi
+    echo "Processing..."
+    sleep 1
+    ;;
+esac
+
+  if [ -d "${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}" ]; then
+    rm -rf ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
+    mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
+    mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
+    ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
+    chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
+    echo "service start ..."
+    service plexmediaserver start >/dev/null 2>&1
+  else
+    if [ -d "${PLEX_INSTALL_PATH}/${PLEX_DIR}" ]; then
+      mv ${PLEX_INSTALL_PATH}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/${PLEX_OLD_DIR}
+      mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
+      ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
+      chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
+    else
+      mv ${SRC}/${PLEX_DIR} ${PLEX_INSTALL_PATH}/
+      ln -s "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex Media Server" "${PLEX_INSTALL_PATH}/${PLEX_DIR}/Plex_Media_Server"
+      chown -R plex:plex ${PLEX_INSTALL_PATH}/${PLEX_DIR}
+    fi
+    echo "service start ..."
+    service plexmediaserver start >/dev/null 2>&1
+  fi
 fi
