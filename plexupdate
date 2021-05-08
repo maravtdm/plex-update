@@ -6,7 +6,7 @@
 if [ "$USER" != "root" ]; then
   echo "You must be root to run this script"
   echo "Exiting ..."
-  exit 0
+  exit 1
 else
 
 ARCH="FreeBSD-amd64"
@@ -24,21 +24,21 @@ else
   INSTALLED="0"
 fi
 
-	VERSION=$(
-    curl -q --no-progress-meter \
-    https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
-    | awk -F"\"" '/Release id/ {print $4}'
-    )
+VERSION=$(
+	curl -q --no-progress-meter \
+  https://plex.tv/downloads/details/1\?build\=freebsd-x86_64\&channel\=16\&distro\=freebsd \
+  | awk -F"\"" '/Release id/ {print $4}'
+)
 
 PLEX_INIT_DIR="PlexMediaServer-${VERSION}"
 ARCHIVE="PlexMediaServer-${VERSION}-${ARCH}.tar.bz2"
 service plexmediaserver status >/dev/null 2>&1
 PROCESS=$?
 
-case $INSTALLED in 
-  $VERSION)
-    echo "Running : $INSTALLED"
-    echo "Latest  : $VERSION"
+case ${INSTALLED} in 
+  ${VERSION})
+    echo "Running : ${INSTALLED}"
+    echo "Latest  : ${VERSION}"
     echo ""
     echo -e "No news is good news"
     echo ""
@@ -46,18 +46,18 @@ case $INSTALLED in
     ;;
   0)
     echo "Running : Not installed"
-    echo "Install Plex Media Server $VERSION ? (Y/n)"
+    echo "Install Plex Media Server ${VERSION} ? (Y/n)"
     read ANSWER
     ;;
   *)
-    echo "Running : $INSTALLED"
-    echo "Latest  : $VERSION"
+    echo "Running : ${INSTALLED}"
+    echo "Latest  : ${VERSION}"
     echo "Upgrade Plex Media Server ? (Y/n)"
     read ANSWER
     ;;
 esac
 
-case $ANSWER in 
+case ${ANSWER} in 
   n) 
     exit 0
     ;;
@@ -68,7 +68,7 @@ case $ANSWER in
     tar -xvf ${SRC}/${ARCHIVE} -C ${SRC} >/dev/null 2>&1
     mv ${SRC}/${PLEX_INIT_DIR} ${SRC}/${PLEX_DIR}
     rm ${SRC}/${ARCHIVE}
-    if [ "$PROCESS" -eq "0" ]; then
+    if [ "${PROCESS}" -eq "0" ]; then
       echo "service stop ..."
       service plexmediaserver stop >/dev/null 2>&1
     fi
